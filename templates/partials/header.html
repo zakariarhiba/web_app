@@ -1,0 +1,32 @@
+<header class="header_section">
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-lg custom_nav-container">
+        <a class="navbar-brand" href="index.html">
+          <span>
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo HealthConect" style="width: 150px; height: auto;">
+            
+          </span>
+        </a>
+        <div class="" id="">
+
+          <div class="custom_menu-btn">
+            <button onclick="openNav()">
+              <span class="s-1"> </span>
+              <span class="s-2"> </span>
+              <span class="s-3"> </span>
+            </button>
+            <div id="myNav" class="overlay">
+              <div class="overlay-content">
+                <a href="/">Accueil</a>
+                <a href="/about">À propos</a>
+                <a href="/contact">Contact</a>
+                <div class="language-selector">
+                  <a href="?lang=fr">EN</a> | <a href="?lang=en">Fr</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>

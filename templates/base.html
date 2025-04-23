@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Basic -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <!-- Site Metas -->
+    <meta name="keywords" content="Health, Telemedicine, HealthConnect" />
+    <meta name="description" content="Plateforme de Telemedicine HealthConnect" />
+    <meta name="author" content="" />
+
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.png') }}" type="image/gif" /> 
+    <!-- bootstrap core css -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}" />  
+    <!-- fonts style -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&display=swap" rel="stylesheet" />
+    <!-- lightbox Gallery-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ekko-lightbox.css') }}" />  
+    <!-- font awesome style -->
+    <link href="{{url_for('static', filename='css/font-awesome.min.css')}}" rel="stylesheet" />  
+    <!-- Custom styles for this template -->
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet" /> 
+    <!-- responsive style -->
+    <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet" />  
+
+    {% block head %}{% endblock %}
+
+
+</head>
+
+
+<body>
+
+    {% block body %}{% endblock %}
+
+    <!-- jQery -->
+    <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script> 
+    <!-- bootstrap js -->
+    <script src=" {{ url_for('static', filename='js/bootstrap.js') }}"></script> 
+    <!-- lightbox Gallery-->
+    <script src="{{ url_for('static', filename='js/ekko-lightbox.min.js') }}"></script> 
+    <!-- custom js -->
+    <script src="{{ url_for('static', filename='js/custom.js') }}"></script>
+
+</body>
+</html>

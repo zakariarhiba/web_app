@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block head %}
+    <title>HealthConnect - Telemedicine Platform</title>
+{% endblock %}
+
+{% block body %}
+
+    {% include 'partials/header.html' %}
+
+    {% include 'partials/slider.html' %}
+
+    {% include 'partials/about.html' %}
+
+    <!-- gallery section -->
+    <div class="gallery_section layout_padding2">
+        <div class="container-fluid">
+        <div class="heading_container heading_center">
+            <h2>
+            Our Solutions
+            </h2>
+        </div>
+        <div class="row">
+            <div class=" col-sm-8 col-md-6 px-0">
+            <div class="img-box">
+                <img src="{{url_for('static', filename='images/g1.jpg')}}" alt="Maintenance préventive">
+                <a href="{{url_for('static', filename='images/g1.jpg')}}" data-toggle="lightbox" data-gallery="gallery">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            </div>
+            <div class="col-sm-4 col-md-3 px-0">
+            <div class="img-box">
+                <img src="{{ url_for('static', filename='images/g2.jpg') }}" alt="Gestion des équipements">
+                <a href="{{ url_for('static', filename='images/g2.jpg') }}" data-toggle="lightbox" data-gallery="gallery">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            </div>
+            <div class="col-sm-6 col-md-3 px-0">
+            <div class="img-box">
+                <img src="{{ url_for('static', filename='images/g3.jpg') }}" alt="Gestion des stocks">
+                <a href="{{ url_for('static', filename='images/g3.jpg') }}" data-toggle="lightbox" data-gallery="gallery">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            </div>
+            <div class="col-sm-6 col-md-3 px-0">
+            <div class="img-box">
+                <img src="{{ url_for('static', filename='images/g4.jpg') }}" alt="Planification des interventions">
+                <a href="{{ url_for('static', filename='images/g4.jpg') }}" data-toggle="lightbox" data-gallery="gallery">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            </div>
+            <div class="col-sm-4 col-md-3 px-0">
+            <div class="img-box">
+                <img src="{{ url_for('static', filename='images/g5.jpg') }}" alt="Rapports et analyses">
+                <a href="{{ url_for('static', filename='images/g5.jpg') }}" data-toggle="lightbox" data-gallery="gallery">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            </div>
+            <div class="col-sm-8 col-md-6 px-0">
+            <div class="img-box">
+                <img src="{{ url_for('static', filename='images/g6.jpg') }}" alt="Maintenance mobile">
+                <a href="{{ url_for('static', filename='images/g6.jpg') }}" data-toggle="lightbox" data-gallery="gallery">
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                </a>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    <!-- end gallery section -->
+
+    <section class="service_section layout_padding">
+        <div class="container">
+          <div class="heading_container heading_center">
+            <h2>
+              Our Services
+            </h2>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-4 mx-auto">
+              <div class="box">
+                <div class="img-box">
+                  <img src=" {{url_for('static', filename='images/s1.jpg')}}" alt="Équipements Médicaux Premium">
+                </div>
+                <div class="detail-box">
+                  <h5>
+                    Highest and latest technology
+                  </h5>
+                  <p>
+                    we are using the latest and highest technology in the field of telemedicine, ensuring that our clients have access to the best tools and resources available.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mx-auto">
+              <div class="box">
+                <div class="img-box">
+                  <img src=" {{url_for('static', filename='images/s2.jpg')}}" alt="Service Après-Vente d'Excellence">
+                </div>
+                <div class="detail-box">
+                  <h5>
+                    Telemedicine Solutions
+                  </h5>
+                  <p>
+                    Our Doctors and professionals are equipped with the solutions, enabling remote  consultation, ensuring continuity of care regardless of location.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-4 mx-auto">
+              <div class="box">
+                <div class="img-box">
+                  <img src=" {{url_for('static', filename='images/s3.jpg')}}" alt="Maintenance Préventive Planifiée">
+                </div>
+                <div class="detail-box">
+                  <h5>
+                    Real Data Monitoring
+                  </h5>
+                  <p>
+                    Real time data transfer, allowing for immediate response to any issues that may arise, ensuring the highest level of patient care and equipment reliability.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    {% include 'partials/contact.html' %}
+
+    
+
+    {% include 'partials/info.html' %}
+
+    {% include 'partials/footer.html' %}
+
+{% endblock %}
+
+
