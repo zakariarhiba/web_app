@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" href="{{url_for('static', filename='css/login.css')}}">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
     <div class="container-fluid">
@@ -25,6 +25,16 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="#" data-toggle="modal" data-target="#consultationModal">
+                                <i class="fas fa-video"></i> Request Consultation
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#active-consultations">
+                                <i class="fas fa-comments"></i> Active Consultations
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <i class="fas fa-calendar-alt"></i> Appointments
                             </a>
@@ -37,11 +47,6 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <i class="fas fa-pills"></i> Prescriptions
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-comments"></i> Messages
                             </a>
                         </li>
                         <li class="nav-item">
@@ -64,8 +69,8 @@
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                         <h1 class="h2">Dashboard</h1>
                         <div class="btn-toolbar mb-2 mb-md-0">
-                            <button type="button" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-calendar-plus"></i> New Appointment
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#consultationModal">
+                                <i class="fas fa-video"></i> Request Consultation
                             </button>
                         </div>
                     </div>
@@ -90,6 +95,89 @@
                                 <div class="card-body">
                                     <p class="card-text">No recent prescriptions.</p>
                                     <a href="#" class="btn btn-primary">View all prescriptions</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div id="active-consultations" class="card">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Active Consultations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="active-consultations-list">
+                                        <!-- Active consultations will be loaded here -->
+                                        <p id="no-consultations-message" class="text-center">You have no active consultations.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consultation Request Modal -->
+                    <div class="modal fade" id="consultationModal" tabindex="-1" role="dialog" aria-labelledby="consultationModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="consultationModalLabel">Request Online Consultation</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="consultation-request-form">
+                                        <div class="form-group">
+                                            <label for="doctor-select">Select Doctor</label>
+                                            <select class="form-control" id="doctor-select" required>
+                                                <option value="" disabled selected>Choose a doctor</option>
+                                                <!-- Doctor options will be loaded dynamically -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="complaint">Chief Complaint</label>
+                                            <textarea class="form-control" id="complaint" rows="3" placeholder="Describe your symptoms or reason for consultation" required></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="urgency">Urgency Level</label>
+                                            <select class="form-control" id="urgency">
+                                                <option value="low">Low - Not urgent</option>
+                                                <option value="medium" selected>Medium - Need advice soon</option>
+                                                <option value="high">High - Urgent matter</option>
+                                            </select>
+                                        </div>
+                                    </form>
+                                    <div id="request-status" class="mt-3 d-none"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" id="submit-request">Submit Request</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Room Modal -->
+                    <div class="modal fade" id="chatModal" tabindex="-1" role="dialog" aria-labelledby="chatModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="chatModalLabel">Consultation with <span id="doctor-name"></span></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="chat-container" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+                                        <div id="chat-messages"></div>
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="text" id="message-input" class="form-control" placeholder="Type your message...">
+                                        <div class="input-group-append">
+                                            <button id="send-button" class="btn btn-primary">Send</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -125,5 +213,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/patient-dashboard.js') }}"></script>
 </body>
 </html>
