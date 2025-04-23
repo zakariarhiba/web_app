@@ -12,18 +12,22 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/contact/')
+@app.route('/contact/') 
 def contact():
     return render_template('contact.html')
 
 
 
 @app.route('/login/', methods=['GET', 'POST'])
-def squarenumber():
+def login():
     if request.method == 'POST':
         typ = request.form.get('type')
         return redirect(url_for('hello_user', type=typ))
-    return render_template('squarenum.html')
+    return render_template('login.html')
+
+@app.route('/register/', methods=['GET', 'POST'])
+def register():
+    return render_template('register.html')
 
 
 @app.route('/doctor/')
