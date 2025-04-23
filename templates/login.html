@@ -8,67 +8,62 @@
     <meta name="keywords" content="">
     <meta name="description"  content="k">
     <meta name="robots" content="noindex,nofollow">
-    <title>MedicaTech | Login</title>
+    <title>HealthConnect | Login</title>
     <link rel="canonical" href="https://www.wrappixel.com/templates/niceadmin-lite/" />
     <!-- Favicon icon -->
     <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='assets/images/favicon.png') }}"> 
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='dist/css/style.css') }}" rel="stylesheet"> 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
-
-    <!-- Font Icon -->
     <link rel="stylesheet" href="{{ url_for('static', filename='fonts_sign/material-icon/css/material-design-iconic-font.min.css') }}">
     <!-- Main css -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css_sign/style.css') }}"> 
 </head>
 
 <body>
-
-    
     <div class="main">
-       <!-- Sing in  Form -->
+       <!-- Sign in Form -->
        <section class="sign-in">
             <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
                 <div class="signin-content">
                     <div class="signin-image">
-                        <figure><img src="{{ url_for('static', filename='images/signin-image.jpg') }}" alt="sing up image"></figure> 
-                        <a href="{{url_for('register') }}" class="signup-image-link">Créer un compte</a>
+                        <figure><img src="{{ url_for('static', filename='images/signin-image.jpg') }}" alt="sign in image"></figure> 
+                        <a href="{{ url_for('register') }}" class="signup-image-link">Create an account</a>
                     </div>
 
                     <div class="signin-form">
-                        <h2 class="form-title">S'inscrire</h2>
+                        <h2 class="form-title">Sign In</h2>
                         <form method="POST" class="register-form" id="login-form" action="{{ url_for('login') }}">
                             <div class="form-group">
-                                <label for="your_name"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                                <input type="text" name="your_name" id="your_name" placeholder="Votre Nom Complet"/>
+                                <label for="email"><i class="zmdi zmdi-email"></i></label>
+                                <input type="email" name="email" id="email" placeholder="Your Email" required/>
                             </div>
                             <div class="form-group">
-                                <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
-                                <input type="password" name="your_pass" id="your_pass" placeholder="Mot de passe"/>
+                                <label for="password"><i class="zmdi zmdi-lock"></i></label>
+                                <input type="password" name="password" id="password" placeholder="Password" required/>
                             </div>
                             <div class="form-group">
                                 <input type="checkbox" name="remember-me" id="remember-me" class="agree-term" />
-                                <label for="remember-me" class="label-agree-term"><span><span></span></span>Souviens-toi de moi</label>
+                                <label for="remember-me" class="label-agree-term"><span><span></span></span>Remember me</label>
                             </div>
                             <div class="form-group form-button">
-                                <input type="submit" name="signin" id="signin" class="form-submit" value="Se connecter"/>
+                                <input type="submit" name="signin" id="signin" class="form-submit" value="Log in"/>
                             </div>
                         </form>
                         <div class="social-login">
-                            <h6 class="social-label">Tous droits réservés par <a href="#">HealthConnect</a> - Living Well Everyday</h6>
+                            <h6 class="social-label">All rights reserved by <a href="#">HealthConnect</a> - Living Well Everyday</h6>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
     </div>
-
-
 </body>
-
 </html>

@@ -1,0 +1,17 @@
+.sidebar {
+    background-color: #343a40;
+    color: white;
+    min-height: 100vh;
+}
+.sidebar .nav-link {
+    color: rgba(255,255,255,.75);
+}
+.sidebar .nav-link:hover {
+    color: white;
+}
+.dashboard-content {
+    padding: 20px;
+}
+.card {
+    margin-bottom: 20px;
+}

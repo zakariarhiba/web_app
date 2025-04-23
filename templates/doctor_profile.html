@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthConnect | Complete Doctor Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css_sign/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts_sign/material-icon/css/material-design-iconic-font.min.css') }}">
+</head>
+<body>
+    <div class="main">
+        <section class="signup">
+            <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="signup-content">
+                    <div class="signup-form">
+                        <h2 class="form-title">Complete Your Doctor Profile</h2>
+                        <form method="POST" class="register-form" id="profile-form">
+                            <div class="form-group">
+                                <label for="first_name"><i class="zmdi zmdi-account"></i></label>
+                                <input type="text" name="first_name" id="first_name" placeholder="First Name" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name"><i class="zmdi zmdi-account"></i></label>
+                                <input type="text" name="last_name" id="last_name" placeholder="Last Name" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone"><i class="zmdi zmdi-phone"></i></label>
+                                <input type="text" name="phone" id="phone" placeholder="Phone Number" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="email"><i class="zmdi zmdi-email"></i></label>
+                                <input type="email" name="email" id="email" placeholder="Email" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="address"><i class="zmdi zmdi-pin"></i></label>
+                                <textarea name="address" id="address" placeholder="Address" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="INP_id"><i class="zmdi zmdi-card"></i></label>
+                                <input type="text" name="INP_id" id="INP_id" placeholder="Medical License Number" required/>
+                            </div>
+                            <div class="form-group">
+                                <label for="speciality"><i class="zmdi zmdi-graduation-cap"></i></label>
+                                <input type="text" name="speciality" id="speciality" placeholder="Speciality" required/>
+                            </div>
+                            <div class="form-group form-button">
+                                <input type="submit" name="profile-submit" id="profile-submit" class="form-submit" value="Submit"/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
