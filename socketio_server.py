@@ -108,11 +108,13 @@ def handle_new_consultation_request(data):
 
 @socketio.on('accept_consultation')
 def handle_accept_consultation(data):
+    print('Accept consultation event received:', data)
     request_id = data.get('request_id')
     doctor_id = data.get('doctor_id')
     patient_id = data.get('patient_id')
     
     if not all([request_id, doctor_id, patient_id]):
+        print('Missing data in accept consultation event')
         return
     
     try:
@@ -215,51 +217,27 @@ def handle_join_chat(data):
 
 @socketio.on('send_message')
 def handle_send_message(data):
-    sender_id = data.get('sender_id')
-    recipient_id = data.get('recipient_id')
-    message_text = data.get('message')
-    
-    if not all([sender_id, recipient_id, message_text]):
+    consultation_id = data.get('consultationId')
+    user_id = data.get('userId')
+    message = data.get('message')
+
+    consultation = Consultation.query.get(consultation_id)
+    if not consultation:
         return
-    
-    try:
-        # Find active consultation between these users
-        consultation = Consultation.query.filter(
-            ((Consultation.doctor_id == sender_id) & (Consultation.patient_id == recipient_id)) |
-            ((Consultation.doctor_id == recipient_id) & (Consultation.patient_id == sender_id))
-        ).filter_by(status='active').first()
-        
-        if not consultation:
-            print(f"No active consultation found between {sender_id} and {recipient_id}")
-            return
-        
-        # Save message to database
-        message = Message(
-            consultation_id=consultation.id,
-            sender_id=sender_id,
-            content=message_text,
-            timestamp=datetime.now()
-        )
-        db.session.add(message)
-        db.session.commit()
-        
-        # Create a unique room for this doctor-patient pair
-        chat_room = f"chat_{consultation.doctor_id}_{consultation.patient_id}"
-        
-        # Send message to chat room
-        emit('new_message', {
-            'id': message.id,
-            'sender_id': sender_id,
-            'sender_name': get_user_name(sender_id),
-            'recipient_id': recipient_id,
-            'message': message_text,
-            'timestamp': message.timestamp.isoformat()
-        }, room=chat_room)
-        
-        print(f"Message sent in consultation {consultation.id} from {sender_id} to {recipient_id}")
-        
-    except Exception as e:
-        print(f"Error sending message: {str(e)}")
+
+    # Broadcast the message to both doctor and patient
+    socketio.emit('new_message', {
+        'consultation_id': consultation_id,
+        'sender_id': user_id,
+        'sender_name': current_user.first_name,
+        'message': message
+    }, room=f"doctor_{consultation.doctor_id}")
+    socketio.emit('new_message', {
+        'consultation_id': consultation_id,
+        'sender_id': user_id,
+        'sender_name': current_user.first_name,
+        'message': message
+    }, room=f"patient_{consultation.patient_id}")
 
 @socketio.on('end_chat_session')
 def handle_end_chat_session(data):

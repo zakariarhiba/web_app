@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
         socket.emit('doctor_connect', { doctor_id: doctorId });
     }
 
+    socket.on('consultation_accepted', function(data) {
+        console.log('Consultation accepted:', data);
+    
+        // Redirect to the chat interface with the consultation ID
+        window.location.href = `/chat/${data.consultation_id}`;
+    });
+
     // Listen for new consultation requests
     socket.on('new_consultation_request', function(data) {
         console.log('New consultation request received:', data);
@@ -45,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.classList.contains('accept-request')) {
             const requestId = e.target.getAttribute('data-request-id');
             const patientId = e.target.getAttribute('data-patient-id');
+            console.log('Accept button clicked:', { requestId, patientId }); // Debugging log
             acceptConsultationRequest(requestId, patientId);
         }
         
@@ -84,6 +92,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fetch active sessions
     fetchActiveSessions();
+
+    // Load active consultations immediately when page loads
+    loadActiveConsultations();
+
+    // Add periodic refresh of active consultations (optional)
+    setInterval(loadActiveConsultations, 30000);
 });
 
 // Fetch pending consultation requests
@@ -227,8 +241,57 @@ function refreshActiveSessionsList(sessions) {
     document.getElementById('active-count').textContent = sessions.length;
 }
 
+function loadActiveConsultations() {
+    fetch('/api/doctor/active-consultations')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch active consultations');
+            }
+            return response.json();
+        })
+        .then(consultations => {
+            const table = document.getElementById('active-consultations-table');
+            table.innerHTML = ''; // Clear existing rows
+
+            if (consultations.length === 0) {
+                table.innerHTML = '<tr><td colspan="4" class="text-center">No active consultations</td></tr>';
+                return;
+            }
+
+            consultations.forEach(consultation => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${consultation.patient_name}</td>
+                    <td>${consultation.complaint}</td>
+                    <td>${formatDateTime(consultation.start_time)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="openChat(${consultation.id})">
+                            Chat
+                        </button>
+                    </td>
+                `;
+                table.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading active consultations:', error);
+        });
+}
+
+// Utility function to format date and time
+function formatDateTime(isoString) {
+    const date = new Date(isoString);
+    return date.toLocaleString();
+}
+
+// Open chat for a specific consultation
+function openChat(consultationId) {
+    window.location.href = `/chat/${consultationId}`;
+}
+
 // Accept a consultation request
 function acceptConsultationRequest(requestId, patientId) {
+    console.log('Sending accept request to server:', { requestId, patientId }); // Debugging log
     // Send accept message to server
     socket.emit('accept_consultation', {
         request_id: requestId,
@@ -445,11 +508,7 @@ function endChatSession() {
     }
 }
 
-// Helper function to format date and time
-function formatDateTime(dateTime) {
-    const date = new Date(dateTime);
-    return date.toLocaleString();
-}
+
 
 // Helper function to format time only
 function formatTime(dateTime) {

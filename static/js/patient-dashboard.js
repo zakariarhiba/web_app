@@ -47,6 +47,13 @@ document.addEventListener('DOMContentLoaded', function() {
             addMessageToChat(data);
         }
     });
+
+    socket.on('consultation_accepted', function(data) {
+        console.log('Consultation accepted:', data);
+    
+        // Redirect to the chat interface with the consultation ID
+        window.location.href = `/chat/${data.consultation_id}`;
+    });
     
     // Listen for chat session started event
     socket.on('chat_session_started', function(data) {

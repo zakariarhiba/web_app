@@ -423,30 +423,100 @@ def create_consultation_request():
 def accept_consultation(consultation_id):
     if current_user.role != 'doctor':
         return jsonify({"error": "Unauthorized"}), 403
-    
+
     consultation = Consultation.query.get(consultation_id)
     if not consultation:
         return jsonify({"error": "Consultation not found"}), 404
-    
+
     if consultation.doctor_id != current_user.id:
         return jsonify({"error": "Unauthorized"}), 403
-    
+
     consultation.status = 'active'
     consultation.start_time = datetime.utcnow()
-    
+
     try:
         db.session.commit()
-        
-        # Notify patient that consultation was accepted
+
+        # Emit event to both doctor and patient
         socketio.emit('consultation_accepted', {
             'consultation_id': consultation.id,
-            'doctor_id': current_user.id
+            'doctor_id': consultation.doctor_id,
+            'patient_id': consultation.patient_id,
+            'patient_data': {
+                'age': consultation.patient.age,
+                'height': consultation.patient.height_cm,
+                'weight': consultation.patient.weight_kg,
+                'spo2': consultation.patient.spo2,  # Add these fields to the Patient model
+                'temperature': consultation.patient.temperature,
+                'ecg': consultation.patient.ecg,
+                'bpm': consultation.patient.bpm
+            }
         }, room=f"patient_{consultation.patient_id}")
-        
+
+        socketio.emit('consultation_accepted', {
+            'consultation_id': consultation.id,
+            'doctor_id': consultation.doctor_id,
+            'patient_id': consultation.patient_id,
+            'patient_data': {
+                'age': consultation.patient.age,
+                'height': consultation.patient.height_cm,
+                'weight': consultation.patient.weight_kg,
+                'spo2': consultation.patient.spo2,
+                'temperature': consultation.patient.temperature,
+                'ecg': consultation.patient.ecg,
+                'bpm': consultation.patient.bpm
+            }
+        }, room=f"doctor_{consultation.doctor_id}")
+
         return jsonify({"message": "Consultation accepted"}), 200
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/doctor/active-consultations', methods=['GET'])
+@login_required
+def get_active_consultations():
+    if current_user.role != 'doctor':
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        # Query active consultations for the current doctor
+        active_consultations = Consultation.query.filter_by(
+            doctor_id=current_user.id,
+            status='active'
+        ).all()
+
+        consultations_list = []
+        for consultation in active_consultations:
+            patient = Patient.query.get(consultation.patient_id)
+            consultations_list.append({
+                'id': consultation.id,
+                'patient_id': patient.id,
+                'patient_name': f"{patient.first_name} {patient.last_name}",
+                'complaint': consultation.complaint,
+                'start_time': consultation.start_time.isoformat() if consultation.start_time else None
+            })
+
+        return jsonify(consultations_list)
+    except Exception as e:
+        app.logger.error(f"Error fetching active consultations: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route('/chat/<int:consultation_id>')
+@login_required
+def chat_interface(consultation_id):
+    consultation = Consultation.query.get(consultation_id)
+    if not consultation:
+        return "Consultation not found", 404
+
+    # Ensure the user is either the doctor or the patient in this consultation
+    if current_user.id not in [consultation.doctor_id, consultation.patient_id]:
+        return "Unauthorized", 403
+
+    # Pass patient data and consultation details to the template
+    patient = consultation.patient
+    return render_template('chat_interface.html', consultation=consultation, patient=patient)
 
 if __name__ == '__main__':
     with app.app_context():

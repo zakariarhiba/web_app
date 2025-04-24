@@ -118,19 +118,29 @@
                     </div>
 
                     <!-- Active Chat Sessions -->
-                    <div id="active-sessions" class="card">
+                    <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Active Consultation Sessions</h5>
+                            <h5>Active Consultations</h5>
                         </div>
                         <div class="card-body">
-                            <div id="active-sessions-list" class="list-group">
-                                <!-- Active chat sessions will be loaded here -->
-                                <div id="no-sessions-message" class="text-center p-3">
-                                    <p>No active consultation sessions</p>
-                                </div>
-                            </div>
+                            <table class="table table-striped" id="active-consultations-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient Name</th>
+                                        <th>Complaint</th>
+                                        <th>Start Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Active consultations will be dynamically loaded here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+
+
+
                 </div>
             </main>
         </div>
