@@ -516,7 +516,8 @@ def chat_interface(consultation_id):
 
     # Pass patient data and consultation details to the template
     patient = consultation.patient
-    return render_template('chat_interface.html', consultation=consultation, patient=patient)
+    doctor = Doctor.query.get(consultation.doctor_id)
+    return render_template('chat_interface.html', consultation=consultation, patient=patient,doctor=doctor)
 
 if __name__ == '__main__':
     with app.app_context():
