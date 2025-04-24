@@ -1,12 +1,12 @@
 // Connect to Socket.IO server
 const socket = io();
 let currentPatientId = null;
-let doctorId = null;
+let doctorId = document.querySelector('meta[name="doctor-id"]')?.content;
 
 // When the page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Get the doctor's ID from the page (you might need to pass this from the server)
-    doctorId = document.querySelector('meta[name="doctor-id"]')?.content;
+    // doctorId = document.querySelector('meta[name="doctor-id"]')?.content;
     
     // Join the doctor's room
     if (doctorId) {
@@ -15,7 +15,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Listen for new consultation requests
     socket.on('new_consultation_request', function(data) {
+        console.log('New consultation request received:', data);
         updatePendingRequests(data);
+        
+        // Show notification
+        if (Notification.permission === "granted") {
+            new Notification("New Consultation Request", {
+                body: `New request from ${data.patient_name}\nComplaint: ${data.complaint}`,
+                icon: "/static/images/notification-icon.png"
+            });
+        }
     });
 
     // Listen for updates to pending requests (when others are accepted/rejected)
@@ -101,36 +110,47 @@ function fetchActiveSessions() {
 
 // Update pending requests when a new one comes in
 function updatePendingRequests(newRequest) {
+    const table = document.getElementById('pending-requests-table');
     const noRequestsRow = document.getElementById('no-requests-row');
+    
     if (noRequestsRow) {
         noRequestsRow.remove();
     }
-
-    const table = document.getElementById('pending-requests-table');
+    
     const row = document.createElement('tr');
-    row.id = 'request-' + newRequest.id;
+    row.id = `request-${newRequest.id}`;
     
     row.innerHTML = `
         <td>${newRequest.patient_name}</td>
         <td>${newRequest.patient_age}</td>
         <td>${formatDateTime(newRequest.request_time)}</td>
         <td>${newRequest.complaint}</td>
+        <td>${newRequest.urgency}</td>
         <td>
-            <button class="btn btn-sm btn-success accept-request" data-request-id="${newRequest.id}" data-patient-id="${newRequest.patient_id}">
-                <i class="fas fa-check"></i> Accept
+            <button class="btn btn-success btn-sm accept-request" 
+                    data-request-id="${newRequest.id}" 
+                    data-patient-id="${newRequest.patient_id}">
+                Accept
             </button>
-            <button class="btn btn-sm btn-danger reject-request" data-request-id="${newRequest.id}">
-                <i class="fas fa-times"></i> Reject
+            <button class="btn btn-danger btn-sm reject-request" 
+                    data-request-id="${newRequest.id}">
+                Reject
             </button>
         </td>
     `;
     
     table.appendChild(row);
     
+    
     // Update the pending count
     const pendingCount = document.getElementById('pending-count');
     pendingCount.textContent = parseInt(pendingCount.textContent) + 1;
+
+    // Play notification sound
+    const audio = new Audio('/static/sounds/notification.mp3');
+    audio.play().catch(e => console.log('Error playing sound:', e));
 }
+
 
 // Refresh the entire pending requests table
 function refreshPendingRequestsTable(requests) {

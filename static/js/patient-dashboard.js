@@ -67,24 +67,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load available doctors
 function loadAvailableDoctors() {
-    // In a real app, you would make an AJAX request to your backend
-    // For now, we'll simulate this with a setTimeout
-    setTimeout(() => {
-        // This would be the response from your server
-        const doctors = [
-            { id: 1, name: 'Dr. John Smith', speciality: 'General Medicine' },
-            { id: 2, name: 'Dr. Sarah Johnson', speciality: 'Cardiology' },
-            { id: 3, name: 'Dr. Michael Brown', speciality: 'Dermatology' }
-        ];
-        
-        const doctorSelect = document.getElementById('doctor-select');
-        doctors.forEach(doctor => {
-            const option = document.createElement('option');
-            option.value = doctor.id;
-            option.textContent = `${doctor.name} (${doctor.speciality})`;
-            doctorSelect.appendChild(option);
+    // Get the doctor select element
+    const doctorSelect = document.getElementById('doctor-select');
+    doctorSelect.innerHTML = '<option value="">Select a doctor...</option>'; // Reset and add default option
+    
+    // Show loading state
+    doctorSelect.disabled = true;
+    
+    // Fetch doctors from the server
+    fetch('/api/patient/available-doctors')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(doctors => {
+            doctors.forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor.id;
+                option.textContent = `Dr. ${doctor.first_name} ${doctor.last_name} (${doctor.speciality})`;
+                option.dataset.status = doctor.status || 'offline';
+                option.classList.add(`status-${doctor.status || 'offline'}`);
+                doctorSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading doctors:', error);
+            showRequestStatus('Failed to load available doctors. Please try again later.', 'danger');
+        })
+        .finally(() => {
+            doctorSelect.disabled = false;
         });
-    }, 500);
 }
 
 // Load active consultations
@@ -144,58 +158,50 @@ function submitConsultationRequest() {
     const doctorId = document.getElementById('doctor-select').value;
     const complaint = document.getElementById('complaint').value;
     const urgency = document.getElementById('urgency').value;
-    
+
     if (!doctorId || !complaint) {
         showRequestStatus('Please fill all required fields.', 'danger');
         return;
     }
-    
-    // Get the selected doctor name
-    const doctorSelect = document.getElementById('doctor-select');
-    const selectedOption = doctorSelect.options[doctorSelect.selectedIndex];
-    const doctorName = selectedOption.textContent;
-    
+
     // Show loading state
     const submitButton = document.getElementById('submit-request');
     submitButton.disabled = true;
     submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
-    
+
     // Send request to server
-    socket.emit('new_consultation_request', {
-        patient_id: patientId,
-        patient_name: 'Patient Name', // You would get the actual patient's name
-        patient_age: 42, // You would get the actual patient's age
-        doctor_id: doctorId,
-        doctor_name: doctorName,
-        complaint: complaint,
-        urgency: urgency,
-        request_time: new Date()
-    });
-    
-    // In a real app, you would wait for a response from the server
-    // For now, we'll simulate this with a setTimeout
-    setTimeout(() => {
-        // Reset button state
+    fetch('/api/consultation/request', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            doctor_id: doctorId,
+            complaint: complaint,
+            urgency: urgency
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to submit consultation request');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Request submitted successfully:', data);
+        showRequestStatus('Your consultation request has been sent. Please wait for the doctor to accept.', 'success');
+        // Reset form
+        document.getElementById('consultation-request-form').reset();
+    })
+    .catch(error => {
+        console.error('Error submitting request:', error);
+        showRequestStatus('Failed to submit consultation request. Please try again.', 'danger');
+    })
+    .finally(() => {
         submitButton.disabled = false;
         submitButton.innerHTML = 'Submit Request';
-        
-        // Show success message
-        showRequestStatus('Your consultation request has been sent. Please wait for the doctor to accept.', 'success');
-        
-        // Clear form
-        document.getElementById('complaint').value = '';
-        document.getElementById('urgency').value = 'medium';
-        
-        // Close modal after a delay
-        setTimeout(() => {
-            $('#consultationModal').modal('hide');
-            
-            // Reset status message
-            const requestStatus = document.getElementById('request-status');
-            requestStatus.className = 'mt-3 d-none';
-            requestStatus.textContent = '';
-        }, 3000);
-    }, 1000);
+    });
+    
 }
 
 // Handle consultation request update
