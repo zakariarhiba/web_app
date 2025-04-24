@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load active consultations
     loadActiveConsultations();
+
     
     // Submit request button handler
     document.getElementById('submit-request').addEventListener('click', function() {
@@ -110,54 +111,48 @@ function loadAvailableDoctors() {
 
 // Load active consultations
 function loadActiveConsultations() {
-    // In a real app, you would make an AJAX request to your backend
-    // For now, we'll simulate this with a setTimeout
-    setTimeout(() => {
-        // This would be the response from your server
-        const consultations = []; // Empty for demo
-        
-        const consultationsList = document.getElementById('active-consultations-list');
-        const noConsultationsMessage = document.getElementById('no-consultations-message');
-        
-        if (consultations.length === 0) {
-            if (noConsultationsMessage) {
-                noConsultationsMessage.style.display = 'block';
-            } else {
-                consultationsList.innerHTML = '<p id="no-consultations-message" class="text-center">You have no active consultations.</p>';
+    fetch('/api/patient/active-consultations')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch active consultations');
             }
-            return;
-        }
-        
-        if (noConsultationsMessage) {
-            noConsultationsMessage.style.display = 'none';
-        }
-        
-        consultationsList.innerHTML = '';
-        
-        consultations.forEach(consultation => {
-            const card = document.createElement('div');
-            card.className = 'card mb-3';
-            card.id = `consultation-${consultation.id}`;
-            
-            card.innerHTML = `
-                <div class="card-body">
-                    <h5 class="card-title">${consultation.doctor_name}</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">${consultation.status}</h6>
-                    <p class="card-text">Requested: ${formatDateTime(consultation.request_time)}</p>
-                    <button class="btn btn-primary enter-chat" data-doctor-id="${consultation.doctor_id}" data-doctor-name="${consultation.doctor_name}">
-                        <i class="fas fa-comments"></i> Enter Chat
-                    </button>
-                </div>
-            `;
-            
-            consultationsList.appendChild(card);
+            return response.json();
+        })
+        .then(consultations => {
+            const consultationsList = document.getElementById('active-consultations-list');
+            consultationsList.innerHTML = ''; // Clear previous content
+
+            if (!consultations || consultations.length === 0) {
+                consultationsList.innerHTML = '<p id="no-consultations-message" class="text-center">You have no active consultations.</p>';
+                return;
+            }
+            consultations.forEach(consultation => {
+                const card = document.createElement('div');
+                card.className = 'card mb-3';
+                card.id = `consultation-${consultation.id}`;
+                card.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">${consultation.doctor_name}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">${consultation.speciality}</h6>
+                        <p class="card-text">Started: ${formatDateTime(consultation.start_time)}</p>
+                        <button class="btn btn-primary enter-chat" data-doctor-id="${consultation.doctor_id}" data-doctor-name="${consultation.doctor_name}">
+                            <i class="fas fa-comments"></i> Enter Chat
+                        </button>
+                    </div>
+                `;
+                consultationsList.appendChild(card);
             
             // Add event listener for the enter chat button
             card.querySelector('.enter-chat').addEventListener('click', function() {
-                openChatSession(consultation.doctor_id, consultation.doctor_name);
+                window.location.href = `/chat/${consultation.id}`;
             });
         });
-    }, 500);
+    })
+    .catch(error => {
+        console.error('Error loading active consultations:', error);
+        const consultationsList = document.getElementById('active-consultations-list');
+        consultationsList.innerHTML = '<p class="text-danger text-center">Failed to load active consultations.</p>';
+    });       
 }
 
 // Submit consultation request

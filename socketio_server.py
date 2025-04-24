@@ -145,6 +145,12 @@ def handle_accept_consultation(data):
                 'message': f'Your consultation request has been accepted by {doctor_name}.'
             }, room=patient_room)
             
+            emit(
+                'consultation_accepted',
+                {'consultation_id': consultation.id},
+                room=f"patient_{consultation.patient_id}"
+            )
+            
             # Notify patient that chat session has started
             emit('chat_session_started', {
                 'consultation_id': request_id,
