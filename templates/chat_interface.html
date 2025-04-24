@@ -178,6 +178,83 @@
         </div>
     </div>
 
+    <!-- Add this in the Patient Data Section -->
+<div class="card mb-3">
+    <div class="card-header bg-warning text-white">
+        <h5 class="mb-0">Real-time Vital Signs</h5>
+    </div>
+    <div class="card-body">
+        <div class="patient-data-grid">
+            <div class="patient-data-card">
+                <i class="fas fa-temperature-high fa-2x mb-2"></i>
+                <h6>Temperature</h6>
+                <p id="temp-value">--</p>
+            </div>
+            <div class="patient-data-card">
+                <i class="fas fa-lungs fa-2x mb-2"></i>
+                <h6>SpO2</h6>
+                <p id="spo2-value">--</p>
+            </div>
+            <div class="patient-data-card">
+                <i class="fas fa-heartbeat fa-2x mb-2"></i>
+                <h6>BPM</h6>
+                <p id="bpm-value">--</p>
+            </div>
+            <div class="patient-data-card">
+                <i class="fas fa-wave-square fa-2x mb-2"></i>
+                <h6>ECG</h6>
+                <p id="ecg-value">--</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Add this JavaScript before the closing </body> tag -->
+    <script>
+        // Handle vital signs updates
+        socket.on('vital_signs_update', function(data) {
+            const parameter = data.parameter;
+            const value = data.value;
+            
+            // Update the corresponding element
+            const element = document.getElementById(`${parameter}-value`);
+            if (element) {
+                if (parameter === 'temp') {
+                    element.textContent = `${value.toFixed(1)}°C`;
+                } else if (parameter === 'spo2') {
+                    element.textContent = `${value.toFixed(0)}%`;
+                } else if (parameter === 'bpm') {
+                    element.textContent = value.toFixed(0);
+                } else if (parameter === 'ecg') {
+                    element.textContent = value.toFixed(2);
+                }
+                
+                // Add visual feedback for updates
+                element.classList.add('highlight');
+                setTimeout(() => {
+                    element.classList.remove('highlight');
+                }, 1000);
+            }
+        });
+    </script>
+
+    <!-- Add this to your existing <style> section -->
+    <style>
+        @keyframes highlight {
+            0% { background-color: #fff; }
+            50% { background-color: #ffd700; }
+            100% { background-color: #fff; }
+        }
+
+        .highlight {
+            animation: highlight 1s ease-in-out;
+        }
+
+        .patient-data-card i {
+            color: #007bff;
+        }
+    </style>
+
     <script>
         // Handle sending messages
         document.getElementById('send-button').addEventListener('click', function() {

@@ -6,6 +6,7 @@ from models import db, User, Patient, Doctor, Consultation, Message
 from urllib.parse import quote_plus
 from flask_socketio import SocketIO
 from socketio_server import init_app as init_socketio
+from mqtt.subscriber import MQTTSubscriber
 
 password = "@Passw0rd123"
 encoded_password = quote_plus(password)
@@ -23,6 +24,9 @@ login_manager.login_view = 'login'
 
 # Initialize Socket.IO
 socketio = init_socketio(app)
+
+mqtt_subscriber = MQTTSubscriber(socketio)
+mqtt_subscriber.connect()
 
 @login_manager.user_loader
 def load_user(user_id):
