@@ -256,27 +256,48 @@
     </style>
 
     <script>
-        // Handle sending messages
-        document.getElementById('send-button').addEventListener('click', function() {
-            const message = document.getElementById('chat-input').value.trim();
-            if (message) {
-                socket.emit('send_message', { consultationId, userId, message });
-                document.getElementById('chat-input').value = '';
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            const socket = io();
+            const consultationId = {{ consultation.id }};
+            const userId = {{ current_user.id }};
+            const doctorId = {{ doctor.id }};
+            const patientId = {{ patient.id }};
+        
+            // Join the unique chat room for this consultation
+            socket.emit('join_chat', {
+                doctor_id: doctorId,
+                patient_id: patientId
+            });
+        
+            // Send message
+            document.getElementById('send-button').addEventListener('click', function() {
+                const input = document.getElementById('chat-input');
+                const message = input.value.trim();
+                if (message) {
+                    socket.emit('send_message', {
+                        consultationId: consultationId,
+                        userId: userId,
+                        message: message
+                    });
+                    input.value = '';
+                }
+            });
+        
+            // Receive message
+            socket.on('new_message', function(data) {
+                if (data.consultation_id !== consultationId) return; // Only show messages for this chat
+                const chatMessages = document.getElementById('chat-messages');
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                messageDiv.innerHTML = `
+                    <div class="sender">${data.sender_name}</div>
+                    <div class="text">${data.message}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        
         });
-
-        // Handle receiving messages
-        socket.on('new_message', function(data) {
-            const chatMessages = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.innerHTML = `
-                <div class="sender">${data.sender_name}</div>
-                <div class="text">${data.message}</div>
-            `;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to the bottom
-        });
-    </script>
+        </script>
 </body>
 </html>
