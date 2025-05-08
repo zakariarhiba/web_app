@@ -4,8 +4,8 @@ from time import sleep
 broker = "test.mosquitto.org"
 port = 1883
 
-# Create client object with callback API version
-client1 = paho.Client(client_id="control1", callback_api_version=paho.CallbackAPIVersion.VERSION1)
+# Create client object (for paho-mqtt >=2.0, do NOT set callback_api_version unless you know you need it)
+client1 = paho.Client(client_id="control1")
 
 def on_publish(client, userdata, result):
     print("Data published")
